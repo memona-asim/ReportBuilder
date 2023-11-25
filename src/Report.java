@@ -1,11 +1,18 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.pdf.PdfWriter;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
@@ -30,6 +37,26 @@ public class Report extends JFrame {
         setLayout(new BorderLayout());
         add(createToolbar(), BorderLayout.NORTH);
         add(chartContainer, BorderLayout.CENTER);
+
+        JButton saveAsPNGButton = new JButton("Save as PNG");
+        saveAsPNGButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveAsPNG();
+            }
+        });
+
+        JButton saveAsPDFButton = new JButton("Save as PDF");
+        saveAsPDFButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveAsPDF();
+            }
+        });
+
+        //add(saveAsPDFButton, BorderLayout.NORTH);
+
+        add(saveAsPNGButton, BorderLayout.SOUTH);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
@@ -262,6 +289,62 @@ public class Report extends JFrame {
             CsvDAO.saveBarChartData(xAxisLabel,yAxisLabel,numberOfBars,barGraphData,Report.this);
         }
     }
+    private void saveAsPNG() {
+        try {
+            // Get the current chart panel
+            JPanel currentChartPanel = (JPanel) chartContainer.getComponent(0);
+            Rectangle bounds = currentChartPanel.getBounds();
+
+            // Create an image of the chart panel
+            BufferedImage screenshot = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB);
+            Graphics g = screenshot.getGraphics();
+            currentChartPanel.paint(g);
+            g.dispose();
+
+            // Save the image to a file
+            File file = new File("chart_image.png");
+            ImageIO.write(screenshot, "png", file);
+
+            JOptionPane.showMessageDialog(this, "Chart saved as chart_image.png");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error saving the chart image");
+        }
+    }
+
+
+    private void saveAsPDF() {
+        try {
+            // Get the current chart panel
+            JPanel currentChartPanel = (JPanel) chartContainer.getComponent(0);
+            Rectangle bounds = currentChartPanel.getBounds();
+
+            // Create an image of the chart panel
+            BufferedImage screenshot = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB);
+            Graphics g = screenshot.getGraphics();
+            currentChartPanel.paint(g);
+            g.dispose();
+
+            // Create a PDF document and add the chart image
+            Document document = new Document();
+            PdfWriter.getInstance(document, new FileOutputStream("chart_output.pdf"));
+            document.open();
+            Image pdfImage = Image.getInstance(toByteArray(screenshot));
+            document.add(pdfImage);
+            document.close();
+
+            JOptionPane.showMessageDialog(this, "Chart saved as chart_output.pdf");
+        } catch (IOException | DocumentException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error saving the chart as PDF");
+        }
+    }
+    private byte[] toByteArray(BufferedImage image) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", baos);
+        return baos.toByteArray();
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

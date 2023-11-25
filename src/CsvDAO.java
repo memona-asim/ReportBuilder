@@ -21,7 +21,6 @@ public class CsvDAO {
 
         return dataMap;
     }
-
     public static HashMap<String, Integer> loadPieChart() {
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showOpenDialog(null);
