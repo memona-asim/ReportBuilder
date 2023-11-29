@@ -46,6 +46,8 @@ public class Report extends JFrame {
         sidebarPanel.add(textButton);
         sidebarPanel.add(tableButton);
 
+        contentPanel.setSize((int) Math.round(8.27 * 72), (int) Math.round(11.69 * 72));
+
         getContentPane().add(BorderLayout.WEST, sidebarPanel);
         getContentPane().add(BorderLayout.CENTER, contentPanel);
 
@@ -200,7 +202,7 @@ public class Report extends JFrame {
             barGraphPanel.loadFromFile();
         });
         menuItem2.addActionListener(e -> {
-            barGraphPanel.saveBarGraph(this);
+
         });
 
         return menu;
@@ -255,7 +257,7 @@ public class Report extends JFrame {
             pieChartPanel.loadPieChart();
         });
         menuItem2.addActionListener(e -> {
-            pieChartPanel.savePieChart(this);
+
         });
         return menu;
     }

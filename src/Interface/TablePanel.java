@@ -99,24 +99,34 @@ public class TablePanel extends JPanel {
 
         // Check if table is null
         if (table != null) {
-            int cellWidth = getWidth() / table.getTableData()[0].length;
-            int cellHeight = getHeight() / table.getTableData().length;
+            int numRows = table.getTableData().length;
+            int numCols = table.getTableData()[0].length;
 
-            for (int i = 0; i < table.getTableData().length; i++) {
-                for (int j = 0; j < table.getTableData()[0].length; j++) {
+            int cellWidth = getWidth() / numCols;
+            int cellHeight = getHeight() / numRows;
+
+            // Adjust the scale factor for cell size
+            double scaleFactor = 0.8; // You can change this value to make cells smaller or larger
+
+            cellWidth = (int) (cellWidth * scaleFactor);
+            cellHeight = (int) (cellHeight * scaleFactor);
+
+            for (int i = 0; i < numRows; i++) {
+                for (int j = 0; j < numCols; j++) {
                     if (table.getTableData()[i][j] != null) {
                         g.drawString(table.getTableData()[i][j], j * cellWidth, (i + 1) * cellHeight);
                     }
                 }
             }
 
-            for (int i = 0; i <= table.getTableData().length; i++) {
+            for (int i = 0; i <= numRows; i++) {
                 g.drawLine(0, i * cellHeight, getWidth(), i * cellHeight);
             }
 
-            for (int j = 0; j <= table.getTableData()[0].length; j++) {
+            for (int j = 0; j <= numCols; j++) {
                 g.drawLine(j * cellWidth, 0, j * cellWidth, getHeight());
             }
         }
     }
+
 }

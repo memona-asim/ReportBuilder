@@ -1,6 +1,7 @@
 package DataAccess;
 
-import Interface.Report;
+import Interface.BarGraphPanel;
+import Interface.PieChartPanel;
 import Interface.TablePanel;
 
 import javax.swing.*;
@@ -112,7 +113,7 @@ public class CsvDAO {
 
         return null;
     }
-    public static void savePieChartData(HashMap<String, Integer> pieChartData, Report report) {
+    public static void savePieChartData(HashMap<String, Integer> pieChartData, PieChartPanel report) {
         if (pieChartData == null || pieChartData.isEmpty()) {
             JOptionPane.showMessageDialog(report, "No pie chart data to save.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -136,7 +137,7 @@ public class CsvDAO {
             }
         }
     }
-    public static void saveBarChartData(String xAxisLabel, String yAxisLabel, int number, HashMap<String, HashMap<String, Double>> barGraphData, Report report) {
+    public static void saveBarChartData(String xAxisLabel, String yAxisLabel, int number, HashMap<String, HashMap<String, Double>> barGraphData, BarGraphPanel report) {
         if (barGraphData == null || barGraphData.isEmpty()) {
             JOptionPane.showMessageDialog(report, "No bar graph data to save.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
