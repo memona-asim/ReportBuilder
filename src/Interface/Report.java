@@ -15,15 +15,20 @@ public class Report extends JFrame {
     protected TablePanel tablePanel;
 
     public Report() {
+        initializeComponents();
+        setupUI();
+    }
+
+    private void initializeComponents() {
         pieChartPanel = new PieChartPanel();
         barGraphPanel = new BarGraphPanel();
-        tablePanel=null;
-
+        tablePanel = new TablePanel();
+    }
+    private void setupUI() {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS)); // Set layout to Y_AXIS
+        contentPanel = new JPanel(new GridLayout(2, 2)); // Use GridLayout for contentPanel
 
         sidebarPanel = new JPanel();
         sidebarPanel.setBackground(Color.DARK_GRAY);
@@ -42,11 +47,7 @@ public class Report extends JFrame {
         sidebarPanel.add(tableButton);
 
         getContentPane().add(BorderLayout.WEST, sidebarPanel);
-
-        // Wrap contentPanel with JScrollPane and set horizontal scrolling policy to NEVER
-        JScrollPane scrollPane = new JScrollPane(contentPanel);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        getContentPane().add(BorderLayout.CENTER, scrollPane);
+        getContentPane().add(BorderLayout.CENTER, contentPanel);
 
         setVisible(true);
     }
@@ -117,11 +118,9 @@ public class Report extends JFrame {
         // Add right-click context menu
         JPopupMenu contextMenu = createTableContextMenu();
         button.addActionListener(new ActionListener() {
-            int rows;
-            int columns;
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                contentPanel.add(tablePanel);
             }
         });
         button.addMouseListener(new MouseAdapter() {
@@ -213,23 +212,7 @@ public class Report extends JFrame {
         menu.add(menuItem1);
         menu.add(menuItem2);
         menuItem.addActionListener(e -> {
-            int rows =0,columns=0;
-            String rowsInput = JOptionPane.showInputDialog("Enter number of rows:");
-            String columnsInput = JOptionPane.showInputDialog("Enter number of columns:");
-            if (rowsInput != null && columnsInput != null) {
-                try {
-                    rows = Integer.parseInt(rowsInput);
-                    columns = Integer.parseInt(columnsInput);
-                    //tablePanel.setRows(rows,columns);
-                } catch (NumberFormatException i) {
-                    JOptionPane.showMessageDialog(Report.this, "Invalid input. Please enter valid numbers for rows and columns.");
-                }
-            }
-            if(rows!=0&&columns!=0){
-                tablePanel=new TablePanel(rows,columns);
-                contentPanel.add(tablePanel);
-                tablePanel.addTable();
-            }
+            tablePanel.collectData();
         });
         return menu;
     }

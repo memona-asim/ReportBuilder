@@ -38,52 +38,13 @@ public class BarGraphPanel extends JPanel {
         barGraph = new BarGraph();
         barGraphData = new HashMap<>();
 
-//        JButton loadFileButton = new JButton("Load From File");
-//        loadFileButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                axisNames=new String[3];
-//                barGraphData= DataAccess.CsvDAO.loadBarChartData(axisNames);
-//                assert axisNames[2]!=null;
-//                numberOfBars=Integer.parseInt(axisNames[2]);
-//                CategoryPlot plot = (CategoryPlot) barChart.getPlot();
-//                plot.getDomainAxis().setLabel(axisNames[0]);
-//                plot.getRangeAxis().setLabel(axisNames[1]);
-//                barGraph.loadData(barGraphData);
-//                xAxisLabel=axisNames[0];
-//                yAxisLabel=axisNames[1];
-//                series= barGraph.getSeriesNames();
-//                barChart = barGraph.createBarChart("Bar Chart", axisNames[0], axisNames[1]);
-//                CategoryPlot plot1 = (CategoryPlot) barChart.getPlot();
-//                plot.getDomainAxis().setCategoryMargin(0.2); // Adjust the margin as needed
-//            }
-//        });
-
-//        JButton addDataButton = new JButton("Add Data");
-//        addDataButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                collectUserData();
-//                updateChart();
-//            }
-//        });
-
-//        JButton saveButton = new JButton("Save Bar Graph Data");
-//        saveButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                saveBarGraph();
-//            }
-//        });
 
         barChart = barGraph.createBarChart("Bar Chart", xAxisLabel, yAxisLabel);
         CategoryPlot plot = (CategoryPlot) barChart.getPlot();
         plot.getDomainAxis().setCategoryMargin(0);
 
         chartPanel = new ChartPanel(barChart);
-//        this.add(loadFileButton);
-//        this.add(addDataButton);
-//        this.add(saveButton);
+
         add(chartPanel, BorderLayout.CENTER);
 
         addMouseListener(new MouseAdapter() {
@@ -145,7 +106,7 @@ public class BarGraphPanel extends JPanel {
     }
 
     private void updateChart() {
-        barChart = barGraph.createBarChart("Bar Chart", xAxisLabel, yAxisLabel);
+        barChart = barGraph.createBarChart("", xAxisLabel, yAxisLabel);
         chartPanel.setChart(barChart);
     }
 
