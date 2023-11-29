@@ -49,6 +49,10 @@ public class Report extends JFrame {
         getContentPane().add(BorderLayout.WEST, sidebarPanel);
         getContentPane().add(BorderLayout.CENTER, contentPanel);
 
+        JScrollPane scrollPane = new JScrollPane(contentPanel);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        getContentPane().add(BorderLayout.CENTER, scrollPane);
+
         setVisible(true);
     }
 
@@ -104,7 +108,6 @@ public class Report extends JFrame {
                 }
             }
         });
-
         return button;
     }
     private JButton createTableButton(String text) {
@@ -214,6 +217,9 @@ public class Report extends JFrame {
         menuItem.addActionListener(e -> {
             tablePanel.collectData();
         });
+        menuItem1.addActionListener(e -> {
+            tablePanel.loadFromFile();
+        });
         return menu;
     }
     private JPopupMenu createLineGraphContextMenu() {
@@ -266,66 +272,4 @@ public class Report extends JFrame {
 
         return menu;
     }
-
-//    private void saveAsPNG() {
-//        try {
-//            // Get the current chart panel
-//            JPanel currentChartPanel = (JPanel) chartContainer.getComponent(0);
-//            Rectangle bounds = currentChartPanel.getBounds();
-//
-//            // Create an image of the chart panel
-//            BufferedImage screenshot = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB);
-//            Graphics g = screenshot.getGraphics();
-//            currentChartPanel.paint(g);
-//            g.dispose();
-//
-//            // Save the image to a file
-//            File file = new File("chart_image.png");
-//            ImageIO.write(screenshot, "png", file);
-//
-//            JOptionPane.showMessageDialog(this, "Chart saved as chart_image.png");
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//            JOptionPane.showMessageDialog(this, "Error saving the chart image");
-//        }
-//    }
-//    private void saveAsPDF() {
-//        try {
-//            // Get the current chart panel
-//            JPanel currentChartPanel = (JPanel) chartContainer.getComponent(0);
-//            Rectangle bounds = currentChartPanel.getBounds();
-//
-//            // Create an image of the chart panel
-//            BufferedImage screenshot = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB);
-//            Graphics g = screenshot.getGraphics();
-//            currentChartPanel.paint(g);
-//            g.dispose();
-//
-//            // Create a PDF document and add the chart image
-//            Document document = new Document();
-//            PdfWriter.getInstance(document, new FileOutputStream("chart_output.pdf"));
-//            document.open();
-//            com.itextpdf.text.Image pdfImage = com.itextpdf.text.Image.getInstance(toByteArray(screenshot));
-//            document.add(pdfImage);
-//            document.close();
-//
-//            JOptionPane.showMessageDialog(this, "Chart saved as chart_output.pdf");
-//        } catch (IOException | DocumentException ex) {
-//            ex.printStackTrace();
-//            JOptionPane.showMessageDialog(this, "Error saving the chart as PDF");
-//        }
-//    }
-//    private byte[] toByteArray(BufferedImage image) throws IOException {
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        ImageIO.write(image, "png", baos);
-//        return baos.toByteArray();
-//    }
-//
-
-    //    private static JPanel createCard(String text) {
-//        JPanel card = new JPanel();
-//        card.add(new JLabel(text, SwingConstants.CENTER));
-//        return card;
-//    }
-
 }

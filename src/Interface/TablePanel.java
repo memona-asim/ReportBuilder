@@ -1,29 +1,48 @@
 package Interface;
 
 import Buisness.Table;
+import DataAccess.CsvDAO;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class TablePanel extends JPanel {
     Table table;
     JScrollPane scrollPane;
     JTextArea textArea;
-
     public TablePanel() {
         textArea = new JTextArea();
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         scrollPane = new JScrollPane(textArea);
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    createContextMenu().show(TablePanel.this, e.getX(), e.getY());
+                }
+            }
+        });
+    }
+    private JPopupMenu createContextMenu() {
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem menuItem = new JMenuItem("Save");
+        menu.add(menuItem);
+
+        menuItem.addActionListener(e -> {
+            CsvDAO.saveTableData(table.getTableData(),table.getRows(),table.getCols(),this);
+        });
+        return menu;
     }
 
     void setRows(int r, int c) {
         if (table == null) {
             table = new Table(r, c);
         } else {
-            // If the table already exists, you might want to handle this case accordingly
-            // For now, I'm assuming you want to create a new table
-            table = new Table(r, c);
+              table = new Table(r, c);
         }
     }
     public void collectData() {
@@ -67,7 +86,13 @@ public class TablePanel extends JPanel {
         }
     }
 
-
+    public void loadFromFile(){
+        int []arr = new int[2];
+        String [][] data=CsvDAO.loadTableData(arr);
+        table=new Table(arr[0],arr[1]);
+        table.setDataSet(data);
+        repaint();
+    }
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

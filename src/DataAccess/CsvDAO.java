@@ -1,6 +1,7 @@
 package DataAccess;
 
 import Interface.Report;
+import Interface.TablePanel;
 
 import javax.swing.*;
 import java.io.*;
@@ -8,6 +9,64 @@ import java.util.HashMap;
 
 public class CsvDAO {
 
+    public static String[][] loadTableData(int[] arr) {
+        String[][] data = null;
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(null);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()))) {
+                String[] dimensions = reader.readLine().split(",");
+                if (dimensions.length == 2) {
+                    arr[0] = Integer.parseInt(dimensions[0].trim());
+                    arr[1] = Integer.parseInt(dimensions[1].trim());
+                } else {
+                    throw new IOException("Invalid file format: Expected format 'rows,columns'.");
+                }
+
+                data = new String[arr[0]][arr[1]];
+                int count=0;
+                    String line = reader.readLine();
+                    System.out.println(line);
+                    if (line != null) {
+                        String[] values = line.split(",");
+                        for (int i = 0; i < arr[0]; i++) {
+                            for(int j=0;j<arr[i];j++){
+                                data[i][j]=values[count++];
+                            }
+                        }
+                    }
+            } catch (IOException | NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        return data;
+    }
+    public static void saveTableData(String[][] data, int rows, int cols, TablePanel report){
+        if (data==null) {
+            JOptionPane.showMessageDialog(report, "No table data to save.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showSaveDialog(report);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileChooser.getSelectedFile()))) {
+                writer.write(rows+",");
+                writer.write(cols+"\n");
+                System.out.println(rows+cols);
+                for(int i=0;i<rows;i++){
+                    for(int j=0;j<cols;j++){
+                        writer.write(data[i][j]+",");
+                    }
+                }
+                System.out.println("Table data saved successfully.");
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(report, "Error saving table data.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
     public static HashMap<String, Integer> parseDataset(String dataset) {
         HashMap<String, Integer> dataMap = new HashMap<>();
 
@@ -53,7 +112,6 @@ public class CsvDAO {
 
         return null;
     }
-
     public static void savePieChartData(HashMap<String, Integer> pieChartData, Report report) {
         if (pieChartData == null || pieChartData.isEmpty()) {
             JOptionPane.showMessageDialog(report, "No pie chart data to save.", "Error", JOptionPane.ERROR_MESSAGE);
