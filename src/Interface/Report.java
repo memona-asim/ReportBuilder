@@ -13,6 +13,7 @@ public class Report extends JFrame {
     protected JPanel sidebarPanel;
     protected JPanel contentPanel;
     protected TablePanel tablePanel;
+    protected TextPanel textPanel;
 
     public Report() {
         initializeComponents();
@@ -23,6 +24,7 @@ public class Report extends JFrame {
         pieChartPanel = new PieChartPanel();
         barGraphPanel = new BarGraphPanel();
         tablePanel = new TablePanel();
+        textPanel=new TextPanel();
     }
     private void setupUI() {
         setSize(800, 600);
@@ -169,7 +171,6 @@ public class Report extends JFrame {
         button.setBorderPainted(false);
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Add right-click context menu
         JPopupMenu contextMenu = createtextContextMenu();
         button.addMouseListener(new MouseAdapter() {
             @Override
@@ -179,7 +180,9 @@ public class Report extends JFrame {
                 }
             }
         });
-
+        button.addActionListener(e->{
+            contentPanel.add(textPanel);
+        });
         return button;
     }
 
@@ -271,7 +274,12 @@ public class Report extends JFrame {
         menu.add(menuItem);
         menu.add(menuItem1);
         menu.add(menuItem2);
-
+        menuItem.addActionListener(e -> {
+            textPanel.addText();
+        });
+        menuItem1.addActionListener(e->{
+            textPanel.loadText();
+        });
         return menu;
     }
 }
