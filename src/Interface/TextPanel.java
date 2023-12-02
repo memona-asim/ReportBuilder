@@ -16,8 +16,13 @@ public class TextPanel extends JPanel {
     private JTextArea textArea;
     JScrollPane scrollPane;
 
+
     public TextPanel() {
+        setBackground(Color.white);
         text = new Text();
+        setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         addMouseListener(new MouseAdapter() {
             @Override

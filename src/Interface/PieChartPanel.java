@@ -4,7 +4,7 @@ import Buisness.PieChart;
 import DataAccess.CsvDAO;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-
+import org.jfree.chart.plot.PiePlot;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -16,8 +16,12 @@ public class PieChartPanel extends JPanel {
     public HashMap<String, Integer> pieChartData;
     private ChartPanel pieChartPanelComponent;
     private double chartScaleFactor = 0.8;
+    private HashMap<String, Color> colorMap; // Store colors for each key
+    private JComboBox<String> keyComboBox;
     public PieChartPanel() {
         setSize(400, 400);
+        colorMap = new HashMap<>();
+        keyComboBox=new JComboBox<>();
         pieChartPanelComponent = new ChartPanel(null);
         pieChartPanelComponent.setLayout(new BorderLayout());
         pieChartPanelComponent.setBackground(Color.WHITE);
@@ -42,6 +46,45 @@ public class PieChartPanel extends JPanel {
 
         this.add(pieChartPanelComponent);
     }
+    private void openOptionsPanel() {
+        // Create a separate panel with a combo box and a button
+        JPanel optionsPanel = new JPanel();
+
+        JButton actionButton = new JButton("Choose Colour");
+        actionButton.addActionListener(e -> chooseKeyColor());
+
+        optionsPanel.add(keyComboBox);
+        optionsPanel.add(actionButton);
+
+        // Show the panel in a dialog
+        int result = JOptionPane.showOptionDialog(
+                this,
+                optionsPanel,
+                "Options Panel",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                null
+        );
+    }
+    private void chooseKeyColor() {
+        String selectedKey = (String) keyComboBox.getSelectedItem();
+        if (selectedKey != null) {
+            Color color = ColorChooser.chooseColor(this);
+            if (color != null) {
+                colorMap.put(selectedKey, color); // Store the color
+                drawPieChart();
+            }
+        }
+    }
+    private void updateKeyComboBox() {
+        if(!(keyComboBox==null))
+        keyComboBox.removeAllItems();
+        for (String key : pieChartData.keySet()) {
+            keyComboBox.addItem(key);
+        }
+    }
     void loadPieChart(){
         pieChartData = CsvDAO.loadPieChart();
         drawPieChart();
@@ -56,11 +99,14 @@ public class PieChartPanel extends JPanel {
     private JPopupMenu createContextMenu() {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem menuItem = new JMenuItem("Save");
+        JMenuItem menuItem1 =new JMenuItem("Customize Colour");
         menu.add(menuItem);
+        menu.add(menuItem1);
 
         menuItem.addActionListener(e -> {
             CsvDAO.savePieChartData(pieChartData,this
             );});
+        menuItem1.addActionListener(e-> openOptionsPanel());
         return menu;
     }
     void drawPieChart() {
@@ -77,5 +123,11 @@ public class PieChartPanel extends JPanel {
         pieChartPanelComponent.add(chartPanel1, BorderLayout.CENTER);
         pieChartPanelComponent.revalidate();
         pieChartPanelComponent.repaint();
+
+        PiePlot plot = (PiePlot) pieChart.getPlot();
+        colorMap.forEach(plot::setSectionPaint);
+
+        pieChartPanelComponent.setChart(pieChart);
+        updateKeyComboBox();
     }
 }

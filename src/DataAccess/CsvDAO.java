@@ -1,15 +1,55 @@
 package DataAccess;
 
-import Interface.BarGraphPanel;
-import Interface.PieChartPanel;
-import Interface.TablePanel;
+import Buisness.LineGraph;
+import Interface.*;
 
 import javax.swing.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CsvDAO {
 
+    public static String loadText() {
+        StringBuilder data = new StringBuilder();
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(null);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    data.append(line).append("\n");  // Append each line with a newline character
+                }
+            } catch (IOException | NumberFormatException e) {
+                e.printStackTrace();
+                // Handle the exception appropriately
+            }
+        }
+        return data.toString();
+    }
+    public static void saveText(String text, TextPanel report){
+        if (text == null || text.isEmpty()) {
+            JOptionPane.showMessageDialog(report, "No data to save.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showSaveDialog(report);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileChooser.getSelectedFile()))) {
+                writer.write(text);
+
+            System.out.println("Data saved successfully.");
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(report, "Error saving pie chart data.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
     public static String[][] loadTableData(int[] arr) {
         String[][] data = null;
         JFileChooser fileChooser = new JFileChooser();
@@ -224,5 +264,58 @@ public class CsvDAO {
         }
 
         return barGraphData;
+    }
+    public static Map<String, List<double[]>> loadLineGraphData() {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(null);
+        Map<String, List<double[]>> lineGraphData = new HashMap<>();
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split(",");
+                    if (parts.length == 3) {
+                        String seriesName = parts[0].trim();
+                        double xValue = Double.parseDouble(parts[1].trim());
+                        double yValue = Double.parseDouble(parts[2].trim());
+
+                        lineGraphData.computeIfAbsent(seriesName, k -> new ArrayList<>()).add(new double[]{xValue, yValue});
+                    }
+                }
+            } catch (IOException | NumberFormatException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error reading file: " + e.getMessage(), "File Read Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        return lineGraphData;
+    }
+    public static void saveLineGraphData(LineGraph lineGraph, LineGraphPanel report) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save Line Graph Data");
+        int userSelection = fileChooser.showSaveDialog(report);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
+                Map<String, List<double[]>> data = lineGraph.getData(); // Assuming LineGraph has a method getData()
+
+                for (Map.Entry<String, List<double[]>> entry : data.entrySet()) {
+                    String seriesName = entry.getKey();
+                    for (double[] dataPoint : entry.getValue()) {
+                        writer.write(seriesName + "," + dataPoint[0] + "," + dataPoint[1]);
+                        writer.newLine();
+                    }
+                }
+
+                JOptionPane.showMessageDialog(report, "Line graph data saved successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(report, "Error saving line graph data.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 }

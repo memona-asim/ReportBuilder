@@ -2,23 +2,29 @@ package Buisness;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.data.category.CategoryDataset;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.data.category.DefaultCategoryDataset;
-
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.List;
 
 public class BarGraph {
 
     private DefaultCategoryDataset dataset;
+    private JFreeChart chart; // Member to store the chart
+
     public BarGraph() {
         dataset = new DefaultCategoryDataset();
+        chart = null; // Initialize the chart as null
     }
+
     public void addData(String series, String category, double value) {
         dataset.addValue(value, series, category);
     }
+
     public JFreeChart createBarChart(String chartTitle, String categoryAxisLabel, String valueAxisLabel) {
-        return ChartFactory.createBarChart(
+        chart = ChartFactory.createBarChart(
                 chartTitle,
                 categoryAxisLabel,
                 valueAxisLabel,
@@ -28,7 +34,19 @@ public class BarGraph {
                 true,
                 false
         );
+        return chart;
     }
+
+    public void setSeriesColor(String seriesName, Color color) {
+        if (chart != null) {
+            CategoryPlot plot = chart.getCategoryPlot();
+            BarRenderer renderer = (BarRenderer) plot.getRenderer();
+            int seriesIndex = dataset.getRowIndex(seriesName);
+            renderer.setSeriesPaint(seriesIndex, color);
+        }
+    }
+
+
     public  String[] getSeriesNames() {
         List<Comparable<?>> keys = dataset.getRowKeys();
         String[] seriesNames = new String[keys.size()];

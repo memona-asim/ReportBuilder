@@ -8,9 +8,7 @@ import org.jfree.chart.plot.CategoryPlot;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
@@ -34,11 +32,13 @@ public class BarGraphPanel extends JPanel {
     private HashMap<String, HashMap<String, Double>> barGraphData;
     private ChartPanel chartPanel;
     String category = "";
+    private JComboBox<String> seriesComboBox;
+
 
     public BarGraphPanel() {
         barGraph = new BarGraph();
         barGraphData = new HashMap<>();
-
+        seriesComboBox = new JComboBox<>();
 
         barChart = barGraph.createBarChart("Bar Chart", xAxisLabel, yAxisLabel);
         CategoryPlot plot = (CategoryPlot) barChart.getPlot();
@@ -111,13 +111,48 @@ public class BarGraphPanel extends JPanel {
     private JPopupMenu createContextMenu() {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem menuItem = new JMenuItem("Save");
+        JMenuItem menuItem1 =new JMenuItem("Customize Colour");
+        JMenuItem menuItem2=new JMenuItem(("Add Category"));
         menu.add(menuItem);
+        menu.add(menuItem1);
+        menu.add(menuItem2);
 
         menuItem.addActionListener(e -> {
             CsvDAO.saveBarChartData(axisNames[0],axisNames[1],numberOfBars,barGraphData,this);
         });
+        menuItem1.addActionListener(e-> openOptionsPanel());
+        menuItem2.addActionListener(e->addMoreCategories());
         return menu;
     }
+    private void openOptionsPanel() {
+        // Create a separate panel with a combo box and a button
+        JPanel optionsPanel = new JPanel();
+
+        JButton actionButton = new JButton("Choose Colour");
+        actionButton.addActionListener(e->chooseSeriesColor());
+
+        optionsPanel.add(seriesComboBox);
+        optionsPanel.add(actionButton);
+
+        // Show the panel in a dialog
+        int result = JOptionPane.showOptionDialog(
+                this,
+                optionsPanel,
+                "Options Panel",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                null
+        );
+
+        if (result == JOptionPane.OK_OPTION) {
+            // Take action based on the combo box selection
+            String selectedOption = (String) seriesComboBox.getSelectedItem();
+            // Implement your logic here
+        }
+    }
+
     private boolean isInsideBar(Point point) {
         return point.x >= barX && point.x <= barX + barWidth &&
                 point.y >= barY && point.y <= barY + barHeight;
@@ -130,6 +165,7 @@ public class BarGraphPanel extends JPanel {
     }
 
     public void addBarChart(){
+        barGraph=new BarGraph();
         collectUserData();
         updateChart();
     }
@@ -137,12 +173,13 @@ public class BarGraphPanel extends JPanel {
     private void updateChart() {
         barChart = barGraph.createBarChart("", xAxisLabel, yAxisLabel);
         chartPanel.setChart(barChart);
+        updateSeriesComboBox();
     }
 
     private void setNumberOfBars() {
         String input = JOptionPane.showInputDialog("Enter the number of bars:");
         try {
-            barGraphData = CsvDAO.loadBarChartData(axisNames);
+            //barGraphData = CsvDAO.loadBarChartData(axisNames);
             numberOfBars = Integer.parseInt(input);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.");
@@ -153,18 +190,18 @@ public class BarGraphPanel extends JPanel {
         if (axisNames == null) {
             axisNames = new String[2];
         }
-        if (numberOfBars == -1) {
+
             setNumberOfBars();
             series = new String[numberOfBars];
             Arrays.fill(series, "");
-        }
+
 
         if ((numberOfBars) <= 0) {
             JOptionPane.showMessageDialog(this, "Number of bars should be greater than 0.");
             return;
         }
 
-        if (Objects.equals(xAxisLabel, " ") && Objects.equals(yAxisLabel, " ")) {
+
             xAxisLabel = JOptionPane.showInputDialog("Enter X-Axis Label:");
             if (xAxisLabel == null || xAxisLabel.isEmpty()) {
                 return;
@@ -173,6 +210,7 @@ public class BarGraphPanel extends JPanel {
             axisNames[0] = xAxisLabel;
 
             yAxisLabel = JOptionPane.showInputDialog("Enter Y-Axis Label:");
+
             if (yAxisLabel == null || yAxisLabel.isEmpty()) {
                 return;
             }
@@ -181,7 +219,7 @@ public class BarGraphPanel extends JPanel {
             CategoryPlot plot = (CategoryPlot) barChart.getPlot();
             plot.getDomainAxis().setLabel(axisNames[0]);
             plot.getRangeAxis().setLabel(axisNames[1]);
-        }
+
 
         HashMap<String, Double> innerMap = new HashMap<>();
 
@@ -210,6 +248,34 @@ public class BarGraphPanel extends JPanel {
             barGraphData.put(category, innerMap);
         }
     }
+    public void addMoreCategories(){
+        HashMap<String, Double> innerMap = new HashMap<>();
+        category = JOptionPane.showInputDialog("Enter Category for Bar ");
+
+        if (category != null && !category.isEmpty()) {
+
+            for (int i = 0; i < numberOfBars; i++) {
+
+                if (series[i].isEmpty()) {
+                    series[i] = JOptionPane.showInputDialog("Enter Series for Bar " + (i + 1) + ":");
+                }
+                if (series[i] != null && !series[i].isEmpty()) {
+                    String value = JOptionPane.showInputDialog("Enter Value for Bar " + (i + 1) + ":");
+                    if (value != null && !value.isEmpty()) {
+                        try {
+                            double valueNum = Double.parseDouble(value);
+                            barGraph.addData(series[i], category, valueNum);
+                            innerMap.put(series[i], valueNum);
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(this, "Invalid Value. Please enter a valid number.");
+                        }
+                    }
+                }
+            }
+            barGraphData.put(category, innerMap);
+        }
+        updateChart();
+    }
     public void loadFromFile(){
         axisNames=new String[3];
         barGraphData= CsvDAO.loadBarChartData(axisNames);
@@ -224,6 +290,27 @@ public class BarGraphPanel extends JPanel {
         series= barGraph.getSeriesNames();
         barChart = barGraph.createBarChart("Bar Chart", axisNames[0], axisNames[1]);
         CategoryPlot plot1 = (CategoryPlot) barChart.getPlot();
-        plot.getDomainAxis().setCategoryMargin(0.2); // Adjust the margin as needed
+        plot.getDomainAxis().setCategoryMargin(0.2);
+        updateChart();
+    }
+    private void chooseSeriesColor() {
+        String seriesName = (String) seriesComboBox.getSelectedItem();
+        if (seriesName != null) {
+            Color color = ColorChooser.chooseColor(this);
+            if (color != null) {
+                barGraph.setSeriesColor(seriesName, color); // Assuming setSeriesColor method exists in BarGraph
+
+                refreshChart();
+            }
+        }
+    }
+    private void refreshChart() {
+        chartPanel.repaint(); // Repaint the chart panel to reflect the color change
+    }
+    private void updateSeriesComboBox() {
+        seriesComboBox.removeAllItems();
+        for (String seriesName : barGraph.getSeriesNames()) { // Assuming getSeriesNames method exists in BarGraph
+            seriesComboBox.addItem(seriesName);
+        }
     }
 }
