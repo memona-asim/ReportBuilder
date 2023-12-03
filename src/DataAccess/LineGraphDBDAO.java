@@ -5,6 +5,7 @@ import java.sql.*;
 import java.util.*;
 
 public class LineGraphDBDAO {
+
     public static void saveToDB(LineGraph lineGraph) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -42,11 +43,13 @@ public class LineGraphDBDAO {
             }
         }
     }
+
     public static LineGraph loadFromDB(int graphId) {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         LineGraph lineGraph = new LineGraph();
+
         try {
             connection = DatabaseConfig.getConnection();
             String sql = "SELECT * FROM LineGraphTable WHERE id = ?";

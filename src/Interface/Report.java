@@ -2,12 +2,14 @@ package Interface;
 
 import Buisness.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,10 +94,17 @@ public class Report extends JFrame {
         mainMenu = new JMenu("File"); // You might want to give your menu a name
         menuBar.add(mainMenu);
 
-        JMenuItem save = new JMenuItem("Save");
+        JMenuItem save = new JMenuItem("Save Structure");
         JMenuItem load = new JMenuItem("Load");
+        JMenuItem saveAsPNG = new JMenuItem("Save as PNG"); // New menu item
+        JMenuItem saveAsPDF = new JMenuItem("Save as PDF"); // New menu item
+
+
         mainMenu.add(load);
         mainMenu.add(save);
+        mainMenu.add(saveAsPNG); // Add "Save as PNG" to the menu
+        mainMenu.add(saveAsPDF); // Add "Save as PDF" to the menu
+
 
         save.addActionListener(new ActionListener() {
             @Override
@@ -109,7 +118,19 @@ public class Report extends JFrame {
                 showDialog();
             }
         });
+        saveAsPNG.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveAsPNGAction();
+            }
+        });
 
+        saveAsPDF.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //saveAsPDFAction();            //add pdf
+            }
+         });
 
         //contentPanel.setSize((int) Math.round(8.27 * 72), (int) Math.round(11.69 * 72));
 
@@ -123,6 +144,33 @@ public class Report extends JFrame {
 
         setVisible(true);
     }
+    //save as pdf implementation here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    private void saveAsPNGAction() {
+        try {
+            // Create a robot for taking screenshots
+            Robot robot = new Robot();
+
+            // Set the coordinates and dimensions of the region to capture (adjust these values)
+            int x = 95;
+            int y = 50;
+            int width = 1500;
+            int height = 760;
+
+            // Capture a screenshot of the specified region
+            BufferedImage screenshot = robot.createScreenCapture(new Rectangle(x, y, width, height));
+
+            // Save the screenshot as a PNG file (adjust the file path)
+            File outputfile = new File("output.png");
+            ImageIO.write(screenshot, "png", outputfile);
+
+            System.out.println("Screenshot saved successfully.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void showDialog() {
         JList<String> jList = new JList<>(listModel);
         jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -393,7 +441,7 @@ public class Report extends JFrame {
             lineGraphPanel.loadFromFile();
         });
         menuItem2.addActionListener(e -> {
-            lineGraphPanel.saveLineGraph(lineGraphPanel);
+            lineGraphPanel.loadFromDB();
         });
         return menu;
     }

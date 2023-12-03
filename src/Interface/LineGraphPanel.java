@@ -50,6 +50,7 @@ public class LineGraphPanel extends JPanel {
         seriesComboBox = new JComboBox<>(); // Initialize the combo box for series selection
 
         add(chartPanel, BorderLayout.CENTER);
+
     }
     private void openOptionsPanel() {
         // Create a separate panel with a combo box and a button
@@ -78,6 +79,7 @@ public class LineGraphPanel extends JPanel {
             String selectedOption = (String) seriesComboBox.getSelectedItem();
             // Implement your logic here
         }
+
     }
     private JPopupMenu createContextMenu() {
         JPopupMenu menu = new JPopupMenu();
@@ -87,9 +89,37 @@ public class LineGraphPanel extends JPanel {
         menu.add(menuItem1);
 
         menuItem.addActionListener(e -> {
-            CsvDAO.saveLineGraphData(lineGraph,LineGraphPanel.this);});
+            saveLineGraph(LineGraphPanel.this);
+            lineGraph.saveToDB();
+        });
         menuItem1.addActionListener(e-> openOptionsPanel());
+
         return menu;
+    }
+    public void loadFromDB() {
+        // You can modify this to take an ID or other parameters as needed
+        int graphId = askForGraphId(); // Implement this method to get the ID from the user
+
+        // Using the static method from LineGraph class to load data from DB
+        LineGraph loadedGraph = LineGraph.loadFromDB(graphId);
+
+        if (loadedGraph != null) {
+            this.lineGraph = loadedGraph; // Replace the current lineGraph with the loaded one
+            updateChart();
+        } else {
+            JOptionPane.showMessageDialog(this, "No data found for the given ID.", "Load Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private int askForGraphId() {
+        // Dummy implementation, replace with actual user input logic
+        String idString = JOptionPane.showInputDialog(this, "Enter the ID of the graph to load:");
+        try {
+            return Integer.parseInt(idString);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid ID format.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return -1; // Indicating invalid ID
+        }
     }
     public void addLineChart() {
         String seriesName = JOptionPane.showInputDialog(this, "Enter series name:");
@@ -117,6 +147,7 @@ public class LineGraphPanel extends JPanel {
         Map<String, List<double[]>> lineGraphData = CsvDAO.loadLineGraphData();
         lineGraph.loadData(lineGraphData);
         updateChart();
+        repaint();
     }
     private void chooseSeriesColor() {
         String seriesName = (String) seriesComboBox.getSelectedItem();

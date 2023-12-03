@@ -17,7 +17,6 @@ import java.util.Map;
 public class LineGraph {
     private XYSeriesCollection dataset;
     private Map<String, XYSeries> seriesMap;
-    int id;
     private JFreeChart chart; // Added member to store the chart
 
     public LineGraph() {
@@ -95,5 +94,7 @@ public class LineGraph {
 
     public static LineGraph loadFromDB(int graphId) {
         return LineGraphDBDAO.loadFromDB(graphId);
-    }
+}
+
+
 }
