@@ -50,7 +50,6 @@ public class LineGraphPanel extends JPanel {
         seriesComboBox = new JComboBox<>(); // Initialize the combo box for series selection
 
         add(chartPanel, BorderLayout.CENTER);
-
     }
     private void openOptionsPanel() {
         // Create a separate panel with a combo box and a button
@@ -79,7 +78,6 @@ public class LineGraphPanel extends JPanel {
             String selectedOption = (String) seriesComboBox.getSelectedItem();
             // Implement your logic here
         }
-
     }
     private JPopupMenu createContextMenu() {
         JPopupMenu menu = new JPopupMenu();
@@ -91,7 +89,6 @@ public class LineGraphPanel extends JPanel {
         menuItem.addActionListener(e -> {
             CsvDAO.saveLineGraphData(lineGraph,LineGraphPanel.this);});
         menuItem1.addActionListener(e-> openOptionsPanel());
-
         return menu;
     }
     public void addLineChart() {
@@ -154,5 +151,5 @@ public class LineGraphPanel extends JPanel {
 
 
 
-    // Add other necessary methods and functionalities as per your application's requirements
+    // Add other necessary methods and functionalities as per your application's requirements
 }

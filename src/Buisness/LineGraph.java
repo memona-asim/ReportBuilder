@@ -1,5 +1,6 @@
 package Buisness;
 
+import DataAccess.LineGraphDBDAO;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
@@ -16,6 +17,7 @@ import java.util.Map;
 public class LineGraph {
     private XYSeriesCollection dataset;
     private Map<String, XYSeries> seriesMap;
+    int id;
     private JFreeChart chart; // Added member to store the chart
 
     public LineGraph() {
@@ -86,5 +88,12 @@ public class LineGraph {
     public List<String> getSeriesNames() {
         return new ArrayList<>(seriesMap.keySet());
     }
-}
 
+    public void saveToDB() {
+        LineGraphDBDAO.saveToDB(this);
+    }
+
+    public static LineGraph loadFromDB(int graphId) {
+        return LineGraphDBDAO.loadFromDB(graphId);
+    }
+}

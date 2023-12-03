@@ -9,9 +9,15 @@ import java.util.HashMap;
 public class PieChart {
     private DefaultPieDataset pieDataset;
     private HashMap<String, Integer> dataSet;
+    int id;
 
     public PieChart(HashMap<String, Integer> data) {
         dataSet = data;
+    }
+    public void addData(HashMap<String,Integer>data){
+        dataSet=data;
+    }
+    public PieChart(){
     }
     public JFreeChart showPie() {
         pieDataset = new DefaultPieDataset();
@@ -22,5 +28,15 @@ public class PieChart {
             pieDataset.setValue(name, amt);
         }
         return ChartFactory.createPieChart("PIE CHART", pieDataset, true, true, true);
+    }
+    public void setId(int id){
+        this.id=id;
+    }
+
+    public int getId() {
+        return id;
+    }
+    public HashMap<String, Integer>getDataSet(){
+        return dataSet;
     }
 }

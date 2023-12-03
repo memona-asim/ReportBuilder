@@ -2,18 +2,20 @@ package Interface;
 
 import Buisness.PieChart;
 import DataAccess.CsvDAO;
+import DataAccess.PieChartDBDAO;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.util.HashMap;
 
 public class PieChartPanel extends JPanel {
     public HashMap<String, Integer> pieChartData;
+    private PieChart pieChart;
     private ChartPanel pieChartPanelComponent;
     private double chartScaleFactor = 0.8;
     private HashMap<String, Color> colorMap; // Store colors for each key
@@ -25,6 +27,7 @@ public class PieChartPanel extends JPanel {
         pieChartPanelComponent = new ChartPanel(null);
         pieChartPanelComponent.setLayout(new BorderLayout());
         pieChartPanelComponent.setBackground(Color.WHITE);
+        pieChart=new PieChart();
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -89,6 +92,10 @@ public class PieChartPanel extends JPanel {
         pieChartData = CsvDAO.loadPieChart();
         drawPieChart();
     }
+    public void loadFromSaved(PieChart p){
+        pieChartData=p.getDataSet();
+        drawPieChart();
+    }
     void addPieChart(){
         String dataset = JOptionPane.showInputDialog("Enter Pie Chart dataset with the item names (e.g. abc:43,def:56):");
         if (dataset != null && !dataset.isEmpty()) {
@@ -104,16 +111,18 @@ public class PieChartPanel extends JPanel {
         menu.add(menuItem1);
 
         menuItem.addActionListener(e -> {
-            CsvDAO.savePieChartData(pieChartData,this
-            );});
+            CsvDAO.savePieChartData(pieChartData,this);
+            PieChartDBDAO.savePieChart(pieChartData,pieChart);
+        });
         menuItem1.addActionListener(e-> openOptionsPanel());
         return menu;
     }
     void drawPieChart() {
         System.out.println("Drawing Pie Chart");
+        pieChart.addData(pieChartData);
 
-        JFreeChart pieChart = new PieChart(pieChartData).showPie();
-        ChartPanel chartPanel1 = new ChartPanel(pieChart);
+        JFreeChart pieChartJ = pieChart.showPie();
+        ChartPanel chartPanel1 = new ChartPanel(pieChartJ);
 
         if (pieChartPanelComponent == null) {
             System.out.println("chartPanelComponent is null. Make sure it is properly initialized.");
@@ -124,10 +133,10 @@ public class PieChartPanel extends JPanel {
         pieChartPanelComponent.revalidate();
         pieChartPanelComponent.repaint();
 
-        PiePlot plot = (PiePlot) pieChart.getPlot();
+        PiePlot plot = (PiePlot) pieChartJ.getPlot();
         colorMap.forEach(plot::setSectionPaint);
 
-        pieChartPanelComponent.setChart(pieChart);
+        pieChartPanelComponent.setChart(pieChartJ);
         updateKeyComboBox();
     }
 }

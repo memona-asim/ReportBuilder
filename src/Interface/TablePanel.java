@@ -2,9 +2,12 @@ package Interface;
 
 import Buisness.Table;
 import DataAccess.CsvDAO;
+import DataAccess.TableDBDAO;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -12,8 +15,10 @@ public class TablePanel extends JPanel {
     Table table;
     JScrollPane scrollPane;
     JTextArea textArea;
+    List<Table>tableList;
     public TablePanel() {
         textArea = new JTextArea();
+        tableList=new ArrayList<>();
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         scrollPane = new JScrollPane(textArea);
@@ -33,11 +38,21 @@ public class TablePanel extends JPanel {
         menu.add(menuItem);
 
         menuItem.addActionListener(e -> {
+            String colnames=JOptionPane.showInputDialog("Enter the column names comma-separated");
+            table.setColNames(toStringArray(colnames));
+            table.setName(JOptionPane.showInputDialog("Enter a name for this table"));
+            TableDBDAO.saveTable(table);
+            tableList.add(table);
             CsvDAO.saveTableData(table.getTableData(),table.getRows(),table.getCols(),this);
         });
         return menu;
     }
-
+    public List<Table>getTableList(){
+        return tableList;
+    }
+    public String[]toStringArray(String a){
+        return a.split(",");
+    }
     void setRows(int r, int c) {
         if (table == null) {
             table = new Table(r, c);
@@ -129,4 +144,8 @@ public class TablePanel extends JPanel {
         }
     }
 
+    public void loadFromSaved(Table b) {
+        table=b;
+        repaint();
+    }
 }

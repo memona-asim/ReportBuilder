@@ -1,7 +1,6 @@
 package Interface;
 
-import Buisness.BarGraph;
-import Buisness.BarGraphStorage;
+import Buisness.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Report extends JFrame {
     protected PieChartPanel pieChartPanel;
@@ -27,13 +27,22 @@ public class Report extends JFrame {
     private List<ReportStructure> reportStructureList;
     DefaultListModel<String> listModel;
     DefaultListModel<String> barGraphListModel;
+    DefaultListModel<String> textListModel;
+    DefaultListModel<String>tableListModel;
+    DefaultListModel<String>pieChartListModel;
     BarGraphStorage barGraphStorage;
+    PieChartStorage pieChartStorage;
+    TextStorage textStorage;
+    TableStorage tableStorage;
 
 
     public Report() {
         reportStructureList=new ArrayList<>();
         listModel = new DefaultListModel<>();
         barGraphListModel=new DefaultListModel<>();
+        pieChartListModel=new DefaultListModel<>();
+        tableListModel=new DefaultListModel<>();
+        textListModel=new DefaultListModel<>();
         initializeComponents();
         setupUI();
     }
@@ -48,6 +57,9 @@ public class Report extends JFrame {
         //loadPanel = new LoadPanel(Report.this);
 
         barGraphStorage=new BarGraphStorage();
+        pieChartStorage=new PieChartStorage();
+        textStorage=new TextStorage();
+        tableStorage=new TableStorage();
     }
 
     private void setupUI() {
@@ -356,6 +368,9 @@ public class Report extends JFrame {
         menuItem1.addActionListener(e -> {
             tablePanel.loadFromFile();
         });
+        menuItem2.addActionListener(e->{
+            showTableDialog();
+        });
         return menu;
     }
 
@@ -403,11 +418,10 @@ public class Report extends JFrame {
             pieChartPanel.loadPieChart();
         });
         menuItem2.addActionListener(e -> {
-
+            showPieDialog();
         });
         return menu;
     }
-
     private JPopupMenu createtextContextMenu() {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem menuItem = new JMenuItem("Add new");
@@ -422,6 +436,9 @@ public class Report extends JFrame {
         });
         menuItem1.addActionListener(e -> {
             textPanel.loadText();
+        });
+        menuItem2.addActionListener(e->{
+            showTextDialog();
         });
         return menu;
     }
@@ -522,7 +539,7 @@ public class Report extends JFrame {
             }
         }
     }
-    void populateListModel() {
+    void populateBarListModel() {
         List<BarGraph> list = barGraphStorage.getBarGraphList();
 
         for (BarGraph b : list) {
@@ -535,7 +552,7 @@ public class Report extends JFrame {
         }
     }
     private void showBarDialog () {
-        populateListModel();
+        populateBarListModel();
         JList<String> jList = new JList<>(barGraphListModel);
         System.out.println(barGraphListModel.get(0));
         jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -576,5 +593,168 @@ public class Report extends JFrame {
         }
         return null;
     }
+    void populatePieListModel() {
+        List<PieChart> list = pieChartStorage.getPieChartList() ;
 
+        for (PieChart b : list) {
+            String idString = String.valueOf(b.getId());
+
+            if (!pieChartListModel.contains(idString)) {
+                pieChartListModel.addElement(idString);
+                //System.out.println(b.getId());
+            }
+        }
+    }
+    private void showPieDialog () {
+        populatePieListModel();
+        JList<String> jList = new JList<>(pieChartListModel);
+        //System.out.println(barGraphListModel.get(0));
+        jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedValue = jList.getSelectedValue();
+                if (selectedValue != null) {
+                    PieChart b=findPieChart(selectedValue);
+                    assert b != null;
+                    pieChartPanel.loadFromSaved(b);
+                    SwingUtilities.getWindowAncestor(jList).dispose();
+                } else {
+                    JOptionPane.showMessageDialog(Report.this, "Please select an option");
+                }
+            }
+        });
+        JPanel dialogPanel = new JPanel(new BorderLayout());
+        //dialogPanel.add(jList);
+        dialogPanel.add(new JScrollPane(jList), BorderLayout.CENTER);
+        dialogPanel.add(okButton, BorderLayout.SOUTH);
+
+        JDialog dialog = new JDialog(Report.this, "Select an Option", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.getContentPane().add(dialogPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    private PieChart findPieChart(String selected){
+        List<PieChart>list=pieChartStorage.getPieChartList();
+        for(int i=0;i<list.size();i++){
+            if(Integer.parseInt(selected)==list.get(i).getId()){
+                return list.get(i);
+            }
+        }
+        return null;
+    }
+    void populateTextListModel() {
+        List<Text> list = textStorage.getTextList() ;
+
+        for (Text b : list) {
+            String idString = String.valueOf(b.getId());
+
+            if (!textListModel.contains(idString)) {
+                textListModel.addElement(idString);
+            }
+        }
+    }
+    private void showTextDialog () {
+        populateTextListModel();
+        JList<String> jList = new JList<>(textListModel);
+        //System.out.println(barGraphListModel.get(0));
+        jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedValue = jList.getSelectedValue();
+                if (selectedValue != null) {
+                    Text b=findText(selectedValue);
+                    assert b != null;
+                    textPanel.loadFromSaved(b);
+                    SwingUtilities.getWindowAncestor(jList).dispose();
+                } else {
+                    JOptionPane.showMessageDialog(Report.this, "Please select an option");
+                }
+            }
+        });
+        JPanel dialogPanel = new JPanel(new BorderLayout());
+        //dialogPanel.add(jList);
+        dialogPanel.add(new JScrollPane(jList), BorderLayout.CENTER);
+        dialogPanel.add(okButton, BorderLayout.SOUTH);
+
+        JDialog dialog = new JDialog(Report.this, "Select an Option", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.getContentPane().add(dialogPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    private Text findText(String selected){
+        List<Text>list=textStorage.getTextList();
+        for(int i=0;i<list.size();i++){
+            if(Integer.parseInt(selected)==list.get(i).getId()){
+                return list.get(i);
+            }
+        }
+        return null;
+    }
+    void populateTableListModel() {
+        List<Table> list = tablePanel.getTableList() ;
+
+        for (Table b : list) {
+            String idString = b.getName();
+
+            if (!tableListModel.contains(idString)) {
+                tableListModel.addElement(idString);
+            }
+        }
+    }
+    void setTables(){
+        tableStorage.loadList(tablePanel.getTableList());
+    }
+    private void showTableDialog () {
+        setTables();
+        populateTableListModel();
+        JList<String> jList = new JList<>(tableListModel);
+        //System.out.println(barGraphListModel.get(0));
+        jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedValue = jList.getSelectedValue();
+                if (selectedValue != null) {
+                    Table b=findTable(selectedValue);
+                    assert b != null;
+                    tablePanel.loadFromSaved(b);
+                    SwingUtilities.getWindowAncestor(jList).dispose();
+                } else {
+                    JOptionPane.showMessageDialog(Report.this, "Please select an option");
+                }
+            }
+        });
+        JPanel dialogPanel = new JPanel(new BorderLayout());
+        //dialogPanel.add(jList);
+        dialogPanel.add(new JScrollPane(jList), BorderLayout.CENTER);
+        dialogPanel.add(okButton, BorderLayout.SOUTH);
+
+        JDialog dialog = new JDialog(Report.this, "Select an Option", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.getContentPane().add(dialogPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    private Table findTable(String selected){
+        List<Table>list=tableStorage.getTableList();
+        for(int i=0;i<list.size();i++){
+            if(Objects.equals(selected, list.get(i).getName())){
+                return list.get(i);
+            }
+        }
+        return null;
+    }
 }

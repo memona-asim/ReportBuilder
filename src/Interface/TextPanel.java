@@ -2,6 +2,8 @@ package Interface;
 
 import Buisness.Text;
 import DataAccess.CsvDAO;
+import DataAccess.TextDBDAO;
+import com.ozten.font.JFontChooser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -68,6 +70,7 @@ public class TextPanel extends JPanel {
 
         menuItem.addActionListener(e -> {
             saveText();
+            TextDBDAO.saveText(text);
         });
         return menu;
     }
@@ -90,19 +93,53 @@ public class TextPanel extends JPanel {
 
         if (result == JOptionPane.OK_OPTION) {
             text.setText(textArea.getText());
-            Font font = new Font("Times New Roman", Font.PLAIN, 15);
-            text.setFont(font);
+            Font selectedFont = promptForFont();
+            if (selectedFont != null) {
+                text.setFont(selectedFont);
+            }
             textPosition = new Point(50, 50);
             repaint();
         }
     }
     public void saveText(){
         CsvDAO.saveText(text.getText(),this);
+        TextDBDAO.saveText(text);
     }
-    public void loadText(){
-        text.setText(CsvDAO.loadText());
-        Font font = new Font("Times New Roman", Font.PLAIN, 15);
-        text.setFont(font);
+    public void loadText() {
+        String textContent = CsvDAO.loadText();
+        text.setText(textContent);
+
+        // Prompt the user to choose a font
+        Font selectedFont = promptForFont();
+        if (selectedFont != null) {
+            text.setFont(selectedFont);
+        }
+
+        textPosition = new Point(50, 50);
+        repaint();
+    }
+
+    private Font promptForFont() {
+        Font selectedFont = null;
+
+        // Display font selection dialog
+        Font initialFont = text.getFont();
+        Font selected = JFontChooser.showDialog(this, "Choose Font", String.valueOf(initialFont));
+
+        if (selected != null) {
+            selectedFont = selected;
+        }
+
+        return selectedFont;
+    }
+
+    public void loadFromSaved(Text t){
+        text=t;
+        Font selectedFont = promptForFont();
+        if (selectedFont != null) {
+            text.setFont(selectedFont);
+        }
+
         textPosition = new Point(50, 50);
         repaint();
     }
