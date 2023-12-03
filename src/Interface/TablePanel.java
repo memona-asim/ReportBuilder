@@ -119,11 +119,11 @@ public class TablePanel extends JPanel {
                 }
             }
 
-            for (int i = 0; i <= numRows; i++) {
+            for (int i = 0; i < numRows; i++) {
                 g.drawLine(0, i * cellHeight, getWidth(), i * cellHeight);
             }
 
-            for (int j = 0; j <= numCols; j++) {
+            for (int j = 0; j < numCols; j++) {
                 g.drawLine(j * cellWidth, 0, j * cellWidth, getHeight());
             }
         }

@@ -1,6 +1,7 @@
 package Interface;
 
 import Buisness.BarGraph;
+import DataAccess.BarGraphDBDAO;
 import DataAccess.CsvDAO;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -8,10 +9,11 @@ import org.jfree.chart.plot.CategoryPlot;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class BarGraphPanel extends JPanel {
     private int barWidth = 50;
@@ -32,6 +34,7 @@ public class BarGraphPanel extends JPanel {
     private HashMap<String, HashMap<String, Double>> barGraphData;
     private ChartPanel chartPanel;
     String category = "";
+    DefaultListModel<String>listModel;
     private JComboBox<String> seriesComboBox;
 
 
@@ -39,6 +42,7 @@ public class BarGraphPanel extends JPanel {
         barGraph = new BarGraph();
         barGraphData = new HashMap<>();
         seriesComboBox = new JComboBox<>();
+        listModel=new DefaultListModel<>();
 
         barChart = barGraph.createBarChart("Bar Chart", xAxisLabel, yAxisLabel);
         CategoryPlot plot = (CategoryPlot) barChart.getPlot();
@@ -119,6 +123,7 @@ public class BarGraphPanel extends JPanel {
 
         menuItem.addActionListener(e -> {
             CsvDAO.saveBarChartData(axisNames[0],axisNames[1],numberOfBars,barGraphData,this);
+            BarGraphDBDAO.saveToDB(axisNames[0],axisNames[1],barGraphData,barGraph);
         });
         menuItem1.addActionListener(e-> openOptionsPanel());
         menuItem2.addActionListener(e->addMoreCategories());
@@ -274,6 +279,23 @@ public class BarGraphPanel extends JPanel {
             }
             barGraphData.put(category, innerMap);
         }
+        updateChart();
+    }
+    void loadFromSaved(BarGraph b) {
+        barGraph=b;
+        axisNames=new String[2];
+        axisNames=b.getAxis();
+        numberOfBars=barGraph.getSeriesNames().length;
+        CategoryPlot plot = (CategoryPlot) barChart.getPlot();
+        plot.getDomainAxis().setLabel(axisNames[0]);
+        plot.getRangeAxis().setLabel(axisNames[1]);
+        barGraph.loadData(barGraphData);
+        xAxisLabel=axisNames[0];
+        yAxisLabel=axisNames[1];
+        series= barGraph.getSeriesNames();
+        barChart = barGraph.createBarChart("Bar Chart", axisNames[0], axisNames[1]);
+        CategoryPlot plot1 = (CategoryPlot) barChart.getPlot();
+        plot.getDomainAxis().setCategoryMargin(0.2);
         updateChart();
     }
     public void loadFromFile(){

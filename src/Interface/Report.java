@@ -1,5 +1,8 @@
 package Interface;
 
+import Buisness.BarGraph;
+import Buisness.BarGraphStorage;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -23,11 +26,14 @@ public class Report extends JFrame {
     protected JMenu mainMenu;
     private List<ReportStructure> reportStructureList;
     DefaultListModel<String> listModel;
+    DefaultListModel<String> barGraphListModel;
+    BarGraphStorage barGraphStorage;
 
 
     public Report() {
         reportStructureList=new ArrayList<>();
         listModel = new DefaultListModel<>();
+        barGraphListModel=new DefaultListModel<>();
         initializeComponents();
         setupUI();
     }
@@ -40,6 +46,8 @@ public class Report extends JFrame {
         imagePanel = new ImagePanel();
         lineGraphPanel = new LineGraphPanel();
         //loadPanel = new LoadPanel(Report.this);
+
+        barGraphStorage=new BarGraphStorage();
     }
 
     private void setupUI() {
@@ -104,8 +112,6 @@ public class Report extends JFrame {
         setVisible(true);
     }
     private void showDialog() {
-
-
         JList<String> jList = new JList<>(listModel);
         jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -329,7 +335,7 @@ public class Report extends JFrame {
             barGraphPanel.loadFromFile();
         });
         menuItem2.addActionListener(e -> {
-
+            showBarDialog();
         });
 
         return menu;
@@ -515,6 +521,60 @@ public class Report extends JFrame {
                 }
             }
         }
+    }
+    void populateListModel() {
+        List<BarGraph> list = barGraphStorage.getBarGraphList();
+
+        for (BarGraph b : list) {
+            String idString = String.valueOf(b.getId());
+
+            if (!barGraphListModel.contains(idString)) {
+                barGraphListModel.addElement(idString);
+                //System.out.println(b.getId());
+            }
+        }
+    }
+    private void showBarDialog () {
+        populateListModel();
+        JList<String> jList = new JList<>(barGraphListModel);
+        System.out.println(barGraphListModel.get(0));
+        jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedValue = jList.getSelectedValue();
+                if (selectedValue != null) {
+                    BarGraph b=findBarGraph(selectedValue);
+                    assert b != null;
+                    barGraphPanel.loadFromSaved(b);
+                    SwingUtilities.getWindowAncestor(jList).dispose();
+                } else {
+                    JOptionPane.showMessageDialog(Report.this, "Please select an option");
+                }
+            }
+        });
+        JPanel dialogPanel = new JPanel(new BorderLayout());
+        //dialogPanel.add(jList);
+        dialogPanel.add(new JScrollPane(jList), BorderLayout.CENTER);
+        dialogPanel.add(okButton, BorderLayout.SOUTH);
+
+        JDialog dialog = new JDialog(Report.this, "Select an Option", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.getContentPane().add(dialogPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    private BarGraph findBarGraph(String selected){
+        List<BarGraph>list=barGraphStorage.getBarGraphList();
+        for(int i=0;i<list.size();i++){
+            if(Integer.parseInt(selected)==list.get(i).getId()){
+                return list.get(i);
+            }
+        }
+        return null;
     }
 
 }
