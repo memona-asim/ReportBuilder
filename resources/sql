@@ -1,0 +1,40 @@
+-- Create the database if it doesn't exist
+CREATE DATABASE IF NOT EXISTS scd_project;
+
+-- Switch to the scd_project database
+USE scd_project;
+
+-- Creating a LineGraphTable
+CREATE TABLE LineGraphTable (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    series_name VARCHAR(255),
+    x_value DOUBLE,
+    y_value DOUBLE
+);
+-- Creating a BarGraphTable
+CREATE TABLE IF NOT EXISTS BarGraphTable (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    x_axis_label VARCHAR(255),
+    y_axis_label VARCHAR(255),
+    categories VARCHAR(255),
+    series VARCHAR(255),
+    value VARCHAR(255)
+);
+
+-- Creating a PieChartTable
+CREATE TABLE IF NOT EXISTS PieChartTable (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    component VARCHAR(255),
+    arc_angle VARCHAR(255)
+);
+
+-- Creating a TextTable
+CREATE TABLE IF NOT EXISTS TextTable (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    text VARCHAR(500)
+);
+-- Creating a table to store report structure
+create table if not exists report_structure(
+name varchar(255) primary key not null,
+filename varchar(255)
+);
