@@ -10,8 +10,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.ArrayList;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,7 +28,6 @@ public class Report extends JFrame {
     protected ImagePanel imagePanel;
     protected LineGraphPanel lineGraphPanel;
     protected JMenu mainMenu;
-    private List<ReportStructure> reportStructureList;
     DefaultListModel<String> listModel;
     DefaultListModel<String> barGraphListModel;
     DefaultListModel<String> textListModel;
@@ -36,10 +37,10 @@ public class Report extends JFrame {
     PieChartStorage pieChartStorage;
     TextStorage textStorage;
     TableStorage tableStorage;
+    ReportStorage reportStorage;
 
 
     public Report() {
-        reportStructureList=new ArrayList<>();
         listModel = new DefaultListModel<>();
         barGraphListModel=new DefaultListModel<>();
         pieChartListModel=new DefaultListModel<>();
@@ -62,6 +63,7 @@ public class Report extends JFrame {
         pieChartStorage=new PieChartStorage();
         textStorage=new TextStorage();
         tableStorage=new TableStorage();
+        reportStorage=new ReportStorage();
     }
 
     private void setupUI() {
@@ -95,7 +97,7 @@ public class Report extends JFrame {
         menuBar.add(mainMenu);
 
         JMenuItem save = new JMenuItem("Save Structure");
-        JMenuItem load = new JMenuItem("Load");
+        JMenuItem load = new JMenuItem("Load Structure");
         JMenuItem saveAsPNG = new JMenuItem("Save as PNG"); // New menu item
         JMenuItem saveAsPDF = new JMenuItem("Save as PDF"); // New menu item
 
@@ -154,8 +156,8 @@ public class Report extends JFrame {
             // Set the coordinates and dimensions of the region to capture (adjust these values)
             int x = 95;
             int y = 50;
-            int width = 1500;
-            int height = 760;
+            int width = contentPanel.getWidth();
+            int height = contentPanel.getHeight()-mainMenu.getHeight();
 
             // Capture a screenshot of the specified region
             BufferedImage screenshot = robot.createScreenCapture(new Rectangle(x, y, width, height));
@@ -170,8 +172,18 @@ public class Report extends JFrame {
             e.printStackTrace();
         }
     }
+    private void populateListModel(){
+        listModel.clear();
+        List<ReportStructure> list = reportStorage.getReports() ;
 
+        for (ReportStructure b : list) {
+            String idString = b.getName();
+                listModel.addElement(idString);
+                System.out.println(idString);
+        }
+    }
     private void showDialog() {
+        populateListModel();
         JList<String> jList = new JList<>(listModel);
         jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -202,9 +214,9 @@ public class Report extends JFrame {
     }
     private void performOperations( String selectedReport) {
         ReportStructure reportStructure = null;
-        for (ReportStructure r : reportStructureList) {
+        for (ReportStructure r : reportStorage.getReports()) {
             if (selectedReport.equals(r.name)) {
-                reportStructure = loadReportStructure(r.filename);
+                reportStructure = r;
                 break;
             }
         }
@@ -507,7 +519,6 @@ public class Report extends JFrame {
 
         String filePath=input + ".txt";
         reportStructure = new ReportStructure(input,filePath );
-        reportStructureList.add(reportStructure);
         listModel.addElement(reportStructure.name);
         //loadPanel.addReport(reportStructure);
 
@@ -538,25 +549,14 @@ public class Report extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        reportStorage.savetoDB(reportStructure);
     }
-
-    public ReportStructure loadReportStructure(String filePath) {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
-            return (ReportStructure) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public void loadReportStructureUtility(ReportStructure loadedStructure) {
         contentPanel.removeAll();
         if (loadedStructure != null) {
            // contentPanel.removeAll();  // Clear existing components
 
             for (ComponentInfo componentInfo : loadedStructure.getComponentInfoList()) {
-                int row = componentInfo.getGridRow();
-                int column = componentInfo.getGridColumn();
 
                 if (componentInfo.getComponentType().equals("Bar Graph")) {
                     System.out.println("bar");

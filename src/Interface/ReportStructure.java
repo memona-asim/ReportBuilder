@@ -15,6 +15,10 @@ public class ReportStructure implements Serializable {
         filename=file;
     }
 
+    public String getFilename() {
+        return filename;
+    }
+
     public void addComponentInfo(ComponentInfo componentInfo) {
         componentInfoList.add(componentInfo);
     }
