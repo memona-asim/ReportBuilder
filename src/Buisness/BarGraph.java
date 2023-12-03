@@ -46,13 +46,14 @@ public class BarGraph {
             CategoryPlot plot = chart.getCategoryPlot();
             BarRenderer renderer = (BarRenderer) plot.getRenderer();
             int seriesIndex = dataset.getRowIndex(seriesName);
+            assert seriesIndex>0;
+            System.out.println(seriesName);
             renderer.setSeriesPaint(seriesIndex, color);
         }
     }
 
-
     public String[] getSeriesNames() {
-        List<Comparable<?>> keys = dataset.getColumnKeys();
+        List<Comparable<?>> keys = dataset.getRowKeys();
         String[] seriesNames = new String[keys.size()];
         for (int i = 0; i < keys.size(); i++) {
             seriesNames[i] = keys.get(i).toString();
