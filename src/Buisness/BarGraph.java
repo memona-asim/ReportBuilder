@@ -12,6 +12,8 @@ import java.util.List;
 public class BarGraph {
 
     private DefaultCategoryDataset dataset;
+    int id;
+    String[]axis;
     private JFreeChart chart; // Member to store the chart
 
     public BarGraph() {
@@ -22,7 +24,9 @@ public class BarGraph {
     public void addData(String series, String category, double value) {
         dataset.addValue(value, series, category);
     }
-
+    public void setId(int id){
+        this.id=id;
+    }
     public JFreeChart createBarChart(String chartTitle, String categoryAxisLabel, String valueAxisLabel) {
         chart = ChartFactory.createBarChart(
                 chartTitle,
@@ -47,14 +51,15 @@ public class BarGraph {
     }
 
 
-    public  String[] getSeriesNames() {
-        List<Comparable<?>> keys = dataset.getRowKeys();
+    public String[] getSeriesNames() {
+        List<Comparable<?>> keys = dataset.getColumnKeys();
         String[] seriesNames = new String[keys.size()];
         for (int i = 0; i < keys.size(); i++) {
             seriesNames[i] = keys.get(i).toString();
         }
         return seriesNames;
     }
+
     public DefaultCategoryDataset getDataset() {
         return dataset;
     }
@@ -62,11 +67,20 @@ public class BarGraph {
         dataset.clear();
     }
     public void loadData(HashMap<String, HashMap<String, Double>> data) {
-        for (String series : data.keySet()) {
-            for (String category : data.get(series).keySet()) {
-                double value = data.get(series).get(category);
+        for (String category : data.keySet()) {
+            for (String series : data.get(category).keySet()) {
+                double value = data.get(category).get(series);
                 dataset.addValue(value, series, category);
             }
         }
+    }
+    public int getId(){
+        return id;
+    }
+    public void setAxis(String[] s){
+        axis=s;
+    }
+    public String[] getAxis(){
+        return axis;
     }
 }
