@@ -301,7 +301,7 @@ public class CsvDAO {
             File fileToSave = fileChooser.getSelectedFile();
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileToSave))) {
-                Map<String, List<double[]>> data = lineGraph.getData(); // Assuming LineGraph has a method getData()
+                Map<String, List<double[]>> data = lineGraph.getData(); 
 
                 for (Map.Entry<String, List<double[]>> entry : data.entrySet()) {
                     String seriesName = entry.getKey();
